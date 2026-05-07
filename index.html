@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlertDoc — Gérez vos documents officiels</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #0F2A5C;
+  --navy2:   #1A3A6E;
+  --orange:  #E8711A;
+  --orangeL: #F59240;
+  --white:   #FFFFFF;
+  --offW:    #F4F7FC;
+  --gray:    #64748B;
+  --grayL:   #E8EDF5;
+  --green:   #15803D;
+  --greenL:  #DCFCE7;
+  --greenB:  #16A34A;
+  --red:     #DC2626;
+  --redL:    #FEE2E2;
+  --yellow:  #D97706;
+  --yellowL: #FEF3C7;
+  --radius:  12px;
+  --shadow:  0 4px 24px rgba(15,42,92,0.10);
+  --shadowHover: 0 8px 32px rgba(15,42,92,0.18);
+}
+
+[data-lang="ar"] {
+  direction: rtl;
+  font-family: 'DM Sans', 'Segoe UI', Tahoma, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--offW);
+  color: var(--navy);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--navy);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.logo-bell { font-size: 26px; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lang-btn {
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lang-btn:hover { background: var(--orangeL); transform: scale(1.04); }
+
+.add-btn {
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s;
+}
+.add-btn:hover { background: var(--orangeL); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,113,26,0.35); }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+  padding: 48px 24px 36px;
+  text-align: center;
+  color: var(--white);
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 12px;
+}
+
+.hero h1 span { color: var(--orangeL); }
+
+.hero p {
+  font-size: 16px;
+  color: #AABCD8;
+  max-width: 520px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+/* Stats row */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.stat-badge {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 10px 20px;
+  text-align: center;
+}
+
+.stat-badge .num {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--orangeL);
+}
+
+.stat-badge .lbl {
+  font-size: 11px;
+  color: #7AACCC;
+  margin-top: 2px;
+}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ── FILTERS / SUMMARY ── */
+.summary-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.summary-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.summary-card:hover, .summary-card.active {
+  transform: translateY(-2px);
+  box-shadow: var(--shadowHover);
+}
+
+.summary-card.active { border-color: var(--orange); }
+.summary-card.filter-green.active { border-color: var(--greenB); }
+.summary-card.filter-orange.active { border-color: var(--orange); }
+.summary-card.filter-red.active { border-color: var(--red); }
+
+.summary-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.summary-icon.all   { background: var(--grayL); }
+.summary-icon.ok    { background: var(--greenL); }
+.summary-icon.soon  { background: var(--yellowL); }
+.summary-icon.exp   { background: var(--redL); }
+
+.summary-info .count {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.summary-info .label {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 1px;
+}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 64px 20px;
+  color: var(--gray);
+}
+
+.empty-state .empty-icon { font-size: 56px; margin-bottom: 16px; }
+.empty-state h3 { font-family: 'Syne', sans-serif; font-size: 20px; color: var(--navy); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; line-height: 1.6; max-width: 340px; margin: 0 auto 24px; }
+
+/* ── DOCUMENT CARDS ── */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
+}
+
+.doc-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: all 0.2s;
+  animation: fadeIn 0.3s ease;
+  position: relative;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.doc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadowHover);
+}
+
+.doc-card-top {
+  height: 6px;
+}
+
+.doc-card-top.green  { background: var(--greenB); }
+.doc-card-top.orange { background: var(--orange); }
+.doc-card-top.red    { background: var(--red); }
+
+.doc-card-body {
+  padding: 18px;
+}
+
+.doc-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.doc-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.3;
+  flex: 1;
+}
+
+.doc-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: 10px;
+}
+
+.doc-action-btn {
+  background: var(--grayL);
+  border: none;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+
+.doc-action-btn:hover { background: var(--navy); color: var(--white); }
+.doc-action-btn.delete:hover { background: var(--red); }
+
+.doc-expiry {
+  font-size: 13px;
+  color: var(--gray);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-expiry span { font-weight: 600; }
+
+/* Progress bar */
+.doc-progress {
+  height: 6px;
+  background: var(--grayL);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.doc-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.progress-green  { background: var(--greenB); }
+.progress-orange { background: var(--orange); }
+.progress-red    { background: var(--red); }
+
+/* Status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-ok     { background: var(--greenL); color: var(--green); }
+.status-soon   { background: var(--yellowL); color: var(--yellow); }
+.status-urgent { background: #FED7AA; color: #C2410C; }
+.status-expired{ background: var(--redL); color: var(--red); }
+
+/* Days remaining */
+.days-remaining {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.days-remaining.green  { color: var(--greenB); }
+.days-remaining.orange { color: var(--orange); }
+.days-remaining.red    { color: var(--red); }
+
+.days-label {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+/* Guide button */
+.guide-btn {
+  width: 100%;
+  background: var(--offW);
+  border: 1px solid var(--grayL);
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--navy);
+  cursor: pointer;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s;
+}
+
+.guide-btn:hover {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,20,50,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(10,20,50,0.25);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid var(--grayL);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--navy);
+  background: var(--white);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--orange);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.quick-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.quick-type {
+  background: var(--grayL);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--navy);
+}
+
+.quick-type:hover {
+  background: var(--orange);
+  color: var(--white);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-primary {
+  flex: 1;
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover { background: var(--orangeL); transform: translateY(-1px); }
+
+.btn-secondary {
+  background: var(--grayL);
+  color: var(--navy);
+  border: none;
+  border-radius: 10px;
+  padding: 13px 20px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover { background: #D0D8E8; }
+
+/* ── GUIDE MODAL ── */
+.guide-section {
+  margin-bottom: 20px;
+}
+
+.guide-section h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.guide-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.step-num {
+  min-width: 22px;
+  height: 22px;
+  background: var(--navy);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.guide-info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.guide-info-box {
+  background: var(--offW);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.guide-info-box .gib-label {
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 4px;
+}
+
+.guide-info-box .gib-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  color: #7AACCC;
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+}
+
+footer span { color: var(--orange); font-weight: 600; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .summary-bar { grid-template-columns: repeat(2, 1fr); }
+  .docs-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  header { padding: 0 16px; }
+  .hero { padding: 32px 16px 24px; }
+  .main { padding: 20px 16px 48px; }
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--navy);
+  color: var(--white);
+  padding: 13px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+  z-index: 500;
+  white-space: nowrap;
+  border-left: 4px solid var(--orange);
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="#">
+    <span class="logo-bell">🔔</span>
+    AlertDoc
+  </a>
+  <div class="header-right">
+    <button class="lang-btn" onclick="toggleLang()" id="langBtn">عربي</button>
+    <button class="add-btn" onclick="openAddModal()">
+      <span>＋</span>
+      <span id="btnAddText">Ajouter un document</span>
+    </button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <h1 id="heroTitle">Gérez vos <span>documents officiels</span>.<br>Ne soyez plus jamais pris de court.</h1>
+  <p id="heroSub">Ajoutez vos documents, configurez vos alertes et recevez des notifications personnalisées avant leur expiration.</p>
+  <div class="stats-row">
+    <div class="stat-badge">
+      <div class="num">100%</div>
+      <div class="lbl" id="s1">Gratuit</div>
+    </div>
+    <div class="stat-badge">
+      <div class="num">FR/AR</div>
+      <div class="lbl" id="s2">Bilingue</div>
+    </div>
+    <div class="stat-badge">
+      <div class="num">0</div>
+      <div class="lbl" id="s3">Installation</div>
+    </div>
+    <div class="stat-badge">
+      <div class="num">🔒</div>
+      <div class="lbl" id="s4">100% Privé</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- Summary bar -->
+  <div class="summary-bar">
+    <div class="summary-card active" id="filter-all" onclick="setFilter('all')">
+      <div class="summary-icon all">📋</div>
+      <div class="summary-info">
+        <div class="count" id="count-all">0</div>
+        <div class="label" id="lbl-all">Tous les documents</div>
+      </div>
+    </div>
+    <div class="summary-card filter-green" id="filter-ok" onclick="setFilter('ok')">
+      <div class="summary-icon ok">✅</div>
+      <div class="summary-info">
+        <div class="count" id="count-ok">0</div>
+        <div class="label" id="lbl-ok">Documents OK</div>
+      </div>
+    </div>
+    <div class="summary-card filter-orange" id="filter-soon" onclick="setFilter('soon')">
+      <div class="summary-icon soon">⚠️</div>
+      <div class="summary-info">
+        <div class="count" id="count-soon">0</div>
+        <div class="label" id="lbl-soon">À renouveler</div>
+      </div>
+    </div>
+    <div class="summary-card filter-red" id="filter-expired" onclick="setFilter('expired')">
+      <div class="summary-icon exp">🔴</div>
+      <div class="summary-info">
+        <div class="count" id="count-expired">0</div>
+        <div class="label" id="lbl-exp">Expirés</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section header -->
+  <div class="section-header">
+    <div class="section-title" id="sectionTitle">Mes Documents</div>
+  </div>
+
+  <!-- Docs grid -->
+  <div id="docsContainer"></div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p>AlertDoc &nbsp;•&nbsp; <span id="footerBy">Développé par Youssef Lachhab</span> &nbsp;•&nbsp; SUPMTI Béni Mellal &nbsp;•&nbsp; 2026</p>
+  <p style="margin-top:6px;font-size:11px;opacity:0.6" id="footerPrivacy">Aucune donnée envoyée sur un serveur — tout reste sur votre appareil</p>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal" style="display:none" onclick="closeModalOutside(event,'addModal')">
+  <div class="modal">
+    <h2>🔔 <span id="modalAddTitle">Ajouter un document</span></h2>
+
+    <div class="form-group">
+      <label class="form-label" id="lbl-docname">Nom du document</label>
+      <input class="form-input" id="docName" type="text" placeholder="Ex: Passeport, CIN, Permis...">
+      <div class="quick-types" id="quickTypes">
+        <button class="quick-type" onclick="setDocType('🪪 CIN')">🪪 CIN</button>
+        <button class="quick-type" onclick="setDocType('📕 Passeport')">📕 Passeport</button>
+        <button class="quick-type" onclick="setDocType('🚗 Permis')">🚗 Permis</button>
+        <button class="quick-type" onclick="setDocType('💳 Carte Bancaire')">💳 Carte Bancaire</button>
+        <button class="quick-type" onclick="setDocType('🎓 Carte Étudiant')">🎓 Carte Étudiant</button>
+        <button class="quick-type" onclick="setDocType('🏥 Visite Médicale')">🏥 Visite Médicale</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" id="lbl-expiry">Date d'expiration</label>
+        <input class="form-input" id="docExpiry" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-alert">Alerte avant (jours)</label>
+        <select class="form-select" id="docAlert">
+          <option value="7">7 jours</option>
+          <option value="15">15 jours</option>
+          <option value="30" selected>30 jours</option>
+          <option value="60">60 jours</option>
+          <option value="90">90 jours</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" id="lbl-notes">Notes (optionnel)</label>
+      <input class="form-input" id="docNotes" type="text" placeholder="Numéro, remarque...">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('addModal')" id="btnCancel">Annuler</button>
+      <button class="btn-primary" onclick="saveDoc()" id="btnSave">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDE MODAL -->
+<div class="modal-overlay" id="guideModal" style="display:none" onclick="closeModalOutside(event,'guideModal')">
+  <div class="modal">
+    <h2 id="guideModalTitle">📖 Guide de renouvellement</h2>
+    <div id="guideContent"></div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="closeModal('guideModal')" id="btnClose">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ────────────────────────────────────────
+// TRANSLATIONS
+// ────────────────────────────────────────
+const T = {
+  fr: {
+    heroTitle: 'Gérez vos <span>documents officiels</span>.<br>Ne soyez plus jamais pris de court.',
+    heroSub: 'Ajoutez vos documents, configurez vos alertes et recevez des notifications personnalisées avant leur expiration.',
+    s1:'Gratuit', s2:'Bilingue', s3:'Installation', s4:'100% Privé',
+    btnAdd: 'Ajouter un document',
+    lbl_all: 'Tous les documents', lbl_ok: 'Documents OK', lbl_soon: 'À renouveler', lbl_exp: 'Expirés',
+    sectionTitle: 'Mes Documents',
+    modalAddTitle: 'Ajouter un document',
+    lbl_docname: 'Nom du document', lbl_expiry: "Date d'expiration",
+    lbl_alert: 'Alerte avant (jours)', lbl_notes: 'Notes (optionnel)',
+    btnCancel: 'Annuler', btnSave: 'Enregistrer', btnClose: 'Fermer',
+    footerBy: 'Développé par Youssef Lachhab',
+    footerPrivacy: "Aucune donnée envoyée sur un serveur — tout reste sur votre appareil",
+    emptyTitle: 'Aucun document pour le moment',
+    emptyDesc: 'Ajoutez votre premier document pour commencer à gérer vos alertes.',
+    emptyBtn: 'Ajouter un document',
+    daysLeft: 'jours restants',
+    dayLeft: 'jour restant',
+    expired: 'Expiré',
+    expiresIn: 'Expire dans',
+    expiredSince: 'Expiré depuis',
+    days: 'jours',
+    day: 'jour',
+    statusOk: '✅ En règle',
+    statusSoon: '⚠️ Bientôt',
+    statusUrgent: '🔴 Urgent',
+    statusExpired: '❌ Expiré',
+    guideTitle: '📖 Guide de renouvellement',
+    guideWhere: '📍 Où aller',
+    guideDocs: '📋 Documents requis',
+    guideCost: '💰 Coût estimé',
+    guideDelay: '⏱ Délai estimé',
+    noGuide: 'Aucun guide disponible pour ce type de document.',
+    saved: 'Document enregistré ✓',
+    deleted: 'Document supprimé',
+    errorName: 'Veuillez saisir un nom',
+    errorDate: "Veuillez saisir une date d'expiration",
+    quickTypes: ['🪪 CIN','📕 Passeport','🚗 Permis','💳 Carte Bancaire','🎓 Carte Étudiant','🏥 Visite Médicale'],
+    langBtn: 'عربي',
+  },
+  ar: {
+    heroTitle: 'أدِر وثائقك الرسمية.<br>لا تُفاجأ بعد الآن <span>بوثيقة منتهية</span>.',
+    heroSub: 'أضف وثائقك، اضبط تنبيهاتك، واستلم إشعارات شخصية قبل انتهاء صلاحيتها.',
+    s1:'مجاني', s2:'ثنائي اللغة', s3:'بدون تثبيت', s4:'خصوصية 100%',
+    btnAdd: 'إضافة وثيقة',
+    lbl_all: 'جميع الوثائق', lbl_ok: 'وثائق سارية', lbl_soon: 'تحتاج تجديد', lbl_exp: 'منتهية الصلاحية',
+    sectionTitle: 'وثائقي',
+    modalAddTitle: 'إضافة وثيقة جديدة',
+    lbl_docname: 'اسم الوثيقة', lbl_expiry: 'تاريخ الانتهاء',
+    lbl_alert: 'التنبيه قبل (أيام)', lbl_notes: 'ملاحظات (اختياري)',
+    btnCancel: 'إلغاء', btnSave: 'حفظ', btnClose: 'إغلاق',
+    footerBy: 'تطوير يوسف لحهاب',
+    footerPrivacy: "لا يتم إرسال أي بيانات إلى خادم — كل شيء يبقى على جهازك",
+    emptyTitle: 'لا توجد وثائق حتى الآن',
+    emptyDesc: 'أضف وثيقتك الأولى لبدء إدارة تنبيهاتك.',
+    emptyBtn: 'إضافة وثيقة',
+    daysLeft: 'أيام متبقية',
+    dayLeft: 'يوم متبق',
+    expired: 'منتهية',
+    expiresIn: 'تنتهي خلال',
+    expiredSince: 'منتهية منذ',
+    days: 'أيام',
+    day: 'يوم',
+    statusOk: '✅ سارية',
+    statusSoon: '⚠️ قريباً',
+    statusUrgent: '🔴 عاجل',
+    statusExpired: '❌ منتهية',
+    guideTitle: '📖 دليل التجديد',
+    guideWhere: '📍 أين تذهب',
+    guideDocs: '📋 الوثائق المطلوبة',
+    guideCost: '💰 التكلفة التقديرية',
+    guideDelay: '⏱ المدة التقديرية',
+    noGuide: 'لا يوجد دليل لهذا النوع من الوثائق.',
+    saved: 'تم حفظ الوثيقة ✓',
+    deleted: 'تم حذف الوثيقة',
+    errorName: 'يرجى إدخال اسم الوثيقة',
+    errorDate: 'يرجى إدخال تاريخ الانتهاء',
+    quickTypes: ['🪪 بطاقة وطنية','📕 جواز سفر','🚗 رخصة قيادة','💳 بطاقة بنكية','🎓 بطاقة طالب','🏥 فحص طبي'],
+    langBtn: 'Français',
+  }
+};
+
+// ────────────────────────────────────────
+// RENEWAL GUIDES
+// ────────────────────────────────────────
+const GUIDES = {
+  fr: {
+    'CIN': {
+      where: 'Commune ou Arrondissement le plus proche',
+      docs: ['Ancienne CIN', '2 photos d\'identité récentes', 'Acte de naissance', 'Justificatif de domicile'],
+      cost: 'Gratuit',
+      delay: '2 à 7 jours ouvrables'
+    },
+    'Passeport': {
+      where: 'Préfecture ou Wilaya de votre lieu de résidence',
+      docs: ['CIN valide', '4 photos d\'identité récentes', 'Formulaire de demande', 'Timbre fiscal (300 MAD)'],
+      cost: '300 MAD',
+      delay: '1 à 3 semaines'
+    },
+    'Permis': {
+      where: 'Centre d\'immatriculation ou Préfecture',
+      docs: ['CIN en cours de validité', 'Permis de conduire actuel', 'Visite médicale récente', 'Photos d\'identité'],
+      cost: 'Variable selon le centre',
+      delay: '1 à 2 semaines'
+    },
+    'Carte Bancaire': {
+      where: 'Votre agence bancaire directement',
+      docs: ['CIN valide uniquement'],
+      cost: 'Gratuit (la banque envoie automatiquement)',
+      delay: '7 à 15 jours'
+    },
+    'Carte Étudiant': {
+      where: 'Secrétariat de votre établissement',
+      docs: ['Attestation d\'inscription', 'Photo d\'identité', 'Ancienne carte étudiante'],
+      cost: 'Gratuit ou frais administratifs minimes',
+      delay: '2 à 5 jours'
+    },
+    'Visite Médicale': {
+      where: 'Médecin agréé ou Centre de santé',
+      docs: ['CIN', 'Carnet de santé (si disponible)'],
+      cost: '50 à 200 MAD selon le médecin',
+      delay: 'Le jour même sur rendez-vous'
+    }
+  },
+  ar: {
+    'بطاقة وطنية': {
+      where: 'الجماعة أو المقاطعة الأقرب إليك',
+      docs: ['البطاقة الوطنية القديمة','صورتان شخصيتان حديثتان','عقد الازدياد','وثيقة إثبات السكن'],
+      cost: 'مجاني',
+      delay: 'من يومين إلى 7 أيام عمل'
+    },
+    'جواز سفر': {
+      where: 'عمالة أو ولاية مكان الإقامة',
+      docs: ['البطاقة الوطنية سارية','4 صور شخصية حديثة','استمارة الطلب','طابع مالي (300 درهم)'],
+      cost: '300 درهم',
+      delay: 'من أسبوع إلى 3 أسابيع'
+    },
+    'رخصة قيادة': {
+      where: 'مركز التسجيل أو العمالة',
+      docs: ['البطاقة الوطنية سارية','رخصة القيادة الحالية','فحص طبي حديث','صور شخصية'],
+      cost: 'متغير حسب المركز',
+      delay: 'من أسبوع إلى أسبوعين'
+    },
+    'بطاقة بنكية': {
+      where: 'فرع بنكك مباشرة',
+      docs: ['البطاقة الوطنية فقط'],
+      cost: 'مجاني (البنك يرسلها تلقائياً)',
+      delay: 'من 7 إلى 15 يوماً'
+    }
+  }
+};
+
+// ────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────
+let lang = 'fr';
+let filter = 'all';
+let docs = JSON.parse(localStorage.getItem('alertdoc_docs') || '[]');
+
+// ────────────────────────────────────────
+// LANGUAGE TOGGLE
+// ────────────────────────────────────────
+function toggleLang() {
+  lang = lang === 'fr' ? 'ar' : 'fr';
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.body.setAttribute('data-lang', lang);
+  applyTranslations();
+  renderDocs();
+}
+
+function applyTranslations() {
+  const t = T[lang];
+  document.getElementById('heroTitle').innerHTML = t.heroTitle;
+  document.getElementById('heroSub').textContent = t.heroSub;
+  document.getElementById('s1').textContent = t.s1;
+  document.getElementById('s2').textContent = t.s2;
+  document.getElementById('s3').textContent = t.s3;
+  document.getElementById('s4').textContent = t.s4;
+  document.getElementById('btnAddText').textContent = t.btnAdd;
+  document.getElementById('lbl-all').textContent = t.lbl_all;
+  document.getElementById('lbl-ok').textContent = t.lbl_ok;
+  document.getElementById('lbl-soon').textContent = t.lbl_soon;
+  document.getElementById('lbl-exp').textContent = t.lbl_exp;
+  document.getElementById('sectionTitle').textContent = t.sectionTitle;
+  document.getElementById('modalAddTitle').textContent = t.modalAddTitle;
+  document.getElementById('lbl-docname').textContent = t.lbl_docname;
+  document.getElementById('lbl-expiry').textContent = t.lbl_expiry;
+  document.getElementById('lbl-alert').textContent = t.lbl_alert;
+  document.getElementById('lbl-notes').textContent = t.lbl_notes;
+  document.getElementById('btnCancel').textContent = t.btnCancel;
+  document.getElementById('btnSave').textContent = t.btnSave;
+  document.getElementById('btnClose').textContent = t.btnClose;
+  document.getElementById('footerBy').textContent = t.footerBy;
+  document.getElementById('footerPrivacy').textContent = t.footerPrivacy;
+  document.getElementById('langBtn').textContent = t.langBtn;
+
+  // Quick types
+  const qt = document.getElementById('quickTypes');
+  qt.innerHTML = '';
+  T[lang].quickTypes.forEach(type => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-type';
+    btn.textContent = type;
+    btn.onclick = () => setDocType(type);
+    qt.appendChild(btn);
+  });
+}
+
+// ────────────────────────────────────────
+// DAYS CALCULATION
+// ────────────────────────────────────────
+function daysUntil(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(dateStr); exp.setHours(0,0,0,0);
+  return Math.round((exp - today) / 86400000);
+}
+
+function getStatus(days, alertDays) {
+  if (days < 0)          return 'expired';
+  if (days <= 7)         return 'urgent';
+  if (days <= alertDays) return 'soon';
+  return 'ok';
+}
+
+function getColor(status) {
+  if (status === 'ok')      return 'green';
+  if (status === 'soon')    return 'orange';
+  if (status === 'urgent')  return 'red';
+  if (status === 'expired') return 'red';
+  return 'green';
+}
+
+function getStatusLabel(status) {
+  const t = T[lang];
+  if (status === 'ok')      return t.statusOk;
+  if (status === 'soon')    return t.statusSoon;
+  if (status === 'urgent')  return t.statusUrgent;
+  if (status === 'expired') return t.statusExpired;
+}
+
+function getStatusClass(status) {
+  if (status === 'ok')      return 'status-ok';
+  if (status === 'soon')    return 'status-soon';
+  if (status === 'urgent')  return 'status-urgent';
+  if (status === 'expired') return 'status-expired';
+}
+
+function getDaysLabel(days) {
+  const t = T[lang];
+  if (days < 0)  return `${t.expiredSince} ${Math.abs(days)} ${Math.abs(days)===1?t.day:t.days}`;
+  if (days === 0) return lang==='fr'?'Expire aujourd\'hui !':'تنتهي اليوم!';
+  if (days === 1) return `${t.expiresIn} ${days} ${t.day}`;
+  return `${t.expiresIn} ${days} ${t.days}`;
+}
+
+function getProgress(days, alertDays) {
+  if (days < 0) return 0;
+  const total = Math.max(alertDays, days);
+  return Math.min(100, Math.round((days / total) * 100));
+}
+
+// ────────────────────────────────────────
+// COUNTS
+// ────────────────────────────────────────
+function updateCounts() {
+  let all=0, ok=0, soon=0, expired=0;
+  docs.forEach(d => {
+    all++;
+    const days = daysUntil(d.expiry);
+    const st = getStatus(days, d.alert);
+    if (st === 'ok') ok++;
+    else if (st === 'expired') expired++;
+    else soon++;
+  });
+  document.getElementById('count-all').textContent = all;
+  document.getElementById('count-ok').textContent = ok;
+  document.getElementById('count-soon').textContent = soon;
+  document.getElementById('count-expired').textContent = expired;
+}
+
+// ────────────────────────────────────────
+// RENDER
+// ────────────────────────────────────────
+function renderDocs() {
+  const container = document.getElementById('docsContainer');
+  updateCounts();
+
+  let filtered = docs;
+  if (filter === 'ok')      filtered = docs.filter(d => getStatus(daysUntil(d.expiry), d.alert) === 'ok');
+  if (filter === 'soon')    filtered = docs.filter(d => { const s = getStatus(daysUntil(d.expiry), d.alert); return s==='soon'||s==='urgent'; });
+  if (filter === 'expired') filtered = docs.filter(d => getStatus(daysUntil(d.expiry), d.alert) === 'expired');
+
+  if (filtered.length === 0) {
+    const t = T[lang];
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>${t.emptyTitle}</h3>
+        <p>${t.emptyDesc}</p>
+        <button class="add-btn" onclick="openAddModal()" style="margin:0 auto">${t.emptyBtn}</button>
+      </div>`;
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'docs-grid';
+
+  filtered.forEach(doc => {
+    const days = daysUntil(doc.expiry);
+    const status = getStatus(days, doc.alert);
+    const color = getColor(status);
+    const progress = getProgress(days, doc.alert);
+
+    const card = document.createElement('div');
+    card.className = 'doc-card';
+    card.innerHTML = `
+      <div class="doc-card-top ${color}"></div>
+      <div class="doc-card-body">
+        <div class="doc-card-header">
+          <div class="doc-name">${doc.name}</div>
+          <div class="doc-actions">
+            <button class="doc-action-btn delete" onclick="deleteDoc('${doc.id}')" title="Supprimer">🗑</button>
+          </div>
+        </div>
+        <div class="days-remaining ${color}">${days < 0 ? '0' : days}</div>
+        <div class="days-label">${getDaysLabel(days)}</div>
+        <div class="doc-progress" style="margin-top:10px">
+          <div class="doc-progress-bar progress-${color}" style="width:${progress}%"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+          <span class="status-badge ${getStatusClass(status)}">${getStatusLabel(status)}</span>
+          <span style="font-size:12px;color:var(--gray)">${new Date(doc.expiry).toLocaleDateString(lang==='ar'?'ar-MA':'fr-FR')}</span>
+        </div>
+        ${doc.notes ? `<div style="font-size:12px;color:var(--gray);margin-top:8px;padding:8px;background:var(--offW);border-radius:6px">📝 ${doc.notes}</div>` : ''}
+        ${hasGuide(doc.name) ? `<button class="guide-btn" onclick="openGuide('${doc.name}')">${lang==='fr'?'📖 Guide de renouvellement':'📖 دليل التجديد'}</button>` : ''}
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(grid);
+}
+
+// ────────────────────────────────────────
+// GUIDE
+// ────────────────────────────────────────
+function hasGuide(name) {
+  const guides = GUIDES[lang];
+  return Object.keys(guides).some(k => name.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(name.replace(/[🪪📕🚗💳🎓🏥]/g,'').trim().toLowerCase()));
+}
+
+function findGuide(name) {
+  const guides = GUIDES[lang];
+  const key = Object.keys(guides).find(k =>
+    name.toLowerCase().includes(k.toLowerCase()) ||
+    k.toLowerCase().includes(name.replace(/[🪪📕🚗💳🎓🏥]/g,'').trim().toLowerCase())
+  );
+  return key ? guides[key] : null;
+}
+
+function openGuide(name) {
+  const t = T[lang];
+  const guide = findGuide(name);
+  document.getElementById('guideModalTitle').textContent = t.guideTitle + ' — ' + name;
+
+  if (!guide) {
+    document.getElementById('guideContent').innerHTML = `<p style="color:var(--gray)">${t.noGuide}</p>`;
+  } else {
+    document.getElementById('guideContent').innerHTML = `
+      <div class="guide-section">
+        <h4>${t.guideWhere}</h4>
+        <p style="font-size:14px;color:var(--navy);padding:10px;background:var(--offW);border-radius:8px">${guide.where}</p>
+      </div>
+      <div class="guide-section">
+        <h4>${t.guideDocs}</h4>
+        <ul class="guide-steps">
+          ${guide.docs.map((d,i) => `<li><span class="step-num">${i+1}</span>${d}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="guide-info-row">
+        <div class="guide-info-box">
+          <div class="gib-label">${t.guideCost}</div>
+          <div class="gib-value">${guide.cost}</div>
+        </div>
+        <div class="guide-info-box">
+          <div class="gib-label">${t.guideDelay}</div>
+          <div class="gib-value">${guide.delay}</div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('guideModal').style.display = 'flex';
+}
+
+// ────────────────────────────────────────
+// FILTER
+// ────────────────────────────────────────
+function setFilter(f) {
+  filter = f;
+  document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('filter-' + f).classList.add('active');
+  renderDocs();
+}
+
+// ────────────────────────────────────────
+// ADD / SAVE / DELETE
+// ────────────────────────────────────────
+function openAddModal() {
+  document.getElementById('docName').value = '';
+  document.getElementById('docExpiry').value = '';
+  document.getElementById('docNotes').value = '';
+  document.getElementById('docAlert').value = '30';
+  document.getElementById('addModal').style.display = 'flex';
+}
+
+function setDocType(type) {
+  document.getElementById('docName').value = type;
+}
+
+function saveDoc() {
+  const name = document.getElementById('docName').value.trim();
+  const expiry = document.getElementById('docExpiry').value;
+  const alert = parseInt(document.getElementById('docAlert').value);
+  const notes = document.getElementById('docNotes').value.trim();
+
+  const t = T[lang];
+  if (!name) { showToast(t.errorName); return; }
+  if (!expiry) { showToast(t.errorDate); return; }
+
+  const doc = {
+    id: Date.now().toString(),
+    name, expiry, alert, notes,
+    createdAt: new Date().toISOString()
+  };
+
+  docs.push(doc);
+  saveToStorage();
+  closeModal('addModal');
+  renderDocs();
+  showToast(t.saved);
+}
+
+function deleteDoc(id) {
+  docs = docs.filter(d => d.id !== id);
+  saveToStorage();
+  renderDocs();
+  showToast(T[lang].deleted);
+}
+
+function saveToStorage() {
+  localStorage.setItem('alertdoc_docs', JSON.stringify(docs));
+}
+
+// ────────────────────────────────────────
+// MODALS
+// ────────────────────────────────────────
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function closeModalOutside(e, id) {
+  if (e.target.classList.contains('modal-overlay')) closeModal(id);
+}
+
+// ────────────────────────────────────────
+// TOAST
+// ────────────────────────────────────────
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// ────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────
+// Add sample docs if empty (demo purposes)
+if (docs.length === 0) {
+  const today = new Date();
+  const addDays = (d) => { const dt = new Date(today); dt.setDate(dt.getDate()+d); return dt.toISOString().split('T')[0]; };
+  docs = [
+    { id:'1', name:'🪪 CIN', expiry: addDays(245), alert:30, notes:'', createdAt: new Date().toISOString() },
+    { id:'2', name:'📕 Passeport', expiry: addDays(18), alert:30, notes:'Numéro: BK123456', createdAt: new Date().toISOString() },
+    { id:'3', name:'🚗 Permis de conduire', expiry: addDays(-3), alert:30, notes:'', createdAt: new Date().toISOString() },
+    { id:'4', name:'💳 Carte Bancaire', expiry: addDays(4), alert:15, notes:'CIH Bank', createdAt: new Date().toISOString() },
+  ];
+  saveToStorage();
+}
+
+renderDocs();
+</script>
+</body>
+</html>
